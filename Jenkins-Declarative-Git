@@ -1,9 +1,5 @@
 pipeline{
     agent any
-    
-    environment{
-        PATH = "/opt/maven3/bin:$PATH"
-    }
 	
 	tools {
         // Install the Maven version configured as "maven1" and add it to the path.
