@@ -1,4 +1,3 @@
-currentBuild.displayName = "online-shopping-#"+currentBuild.number
 
 pipeline{
     agent any
@@ -6,27 +5,34 @@ pipeline{
     environment{
         PATH = "/opt/maven3/bin:$PATH"
     }
+	
+	tools {
+        // Install the Maven version configured as "maven1" and add it to the path.
+        maven "maven1"
+        jdk "java1"
+    }
     stages{
         stage("Git Checkout"){
             steps{
-                git credentialsId: 'github', url: 'https://github.com/javahometech/myweb'
+                git credentialsId: '81271133-dbad-41a3-8971-81f0b293715c', url: 'https://github.com/SREEKANTH-140/myweb.git'
             }
         }
         stage("Maven Build"){
             steps{
-                sh "mvn clean package"
+                // Run Maven on a Unix agent.
+                sh "mvn -Dmaven.test.failure.ignore=true clean package"
                 sh "mv target/*.war target/myweb.war"
             }
         }
         stage("deploy-dev"){
             steps{
-                sshagent(['tomcat-new']) {
+                sshagent(['tomcat_server']) {
                 sh """
-                    scp -o StrictHostKeyChecking=no target/myweb.war  ec2-user@172.31.5.176:/opt/tomcat8/webapps/
+                    scp -o StrictHostKeyChecking=no target/myweb.war  ec2-user@172.31.93.234:/opt/tomcat8/webapps/
                     
-                    ssh ec2-user@172.31.5.176 /opt/tomcat8/bin/shutdown.sh
+                    ssh ec2-user@172.31.93.234 /opt/tomcat8/bin/shutdown.sh
                     
-                    ssh ec2-user@172.31.5.176 /opt/tomcat8/bin/startup.sh
+                    ssh ec2-user@172.31.93.234 /opt/tomcat8/bin/startup.sh
                 
                 """
             }
